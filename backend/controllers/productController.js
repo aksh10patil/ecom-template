@@ -105,8 +105,6 @@ exports.updateProduct = async (req, res) => {
       if (req.files && req.files.length > 0) {
         const newImages = req.files.map(file => `/uploads/${file.filename}`);
         product.images = [...product.images, ...newImages];
-      } else {
-        product.images = product.images || [];
       }
       
       const updatedProduct = await product.save();
