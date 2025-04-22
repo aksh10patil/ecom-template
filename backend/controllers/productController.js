@@ -122,9 +122,11 @@ exports.updateProduct = async (req, res) => {
         return res.status(404).json({ message: 'Product not found' });
       }
       
-      await product.remove();
+      // Use findByIdAndDelete instead of the deprecated remove() method
+      await Product.findByIdAndDelete(req.params.id);
       res.json({ message: 'Product removed' });
     } catch (error) {
+      console.error("Error in deleteProduct:", error);
       res.status(500).json({ message: 'Server Error', error: error.message });
     }
   };

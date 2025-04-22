@@ -1,6 +1,6 @@
 const express = require("express")
 const cors = require("cors");
-const path = require("path")
+
 const connectDB = require('./config/db')
 const productRoutes = require('./routes/productRoutes');
 
@@ -10,6 +10,10 @@ dotenv.config();
 
 const app = express();
 
+const fs = require('fs');
+const path = require('path');
+
+
 
 
 app.use(cors());
@@ -17,6 +21,12 @@ app.use(express.json());
 
 
 connectDB();
+
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Uploads directory created');
+}
 
 // Static folder for uploaded images
 app.use('/uploads/', express.static(path.join(__dirname, 'uploads')));
