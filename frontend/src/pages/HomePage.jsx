@@ -17,22 +17,33 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch('http://localhost:4000/api/products')
       .then(res => res.json())
       .then(data => {
+        console.log("Products loaded:", data);
         setProducts(data);
+        setLoading(false);
       })
-      .catch(err => console.error('Error fetching products:', err));
+      .catch(err => {
+        console.error('Error fetching products:', err);
+        setLoading(false);
+      });
   }, []);
 
-  // Function to render content based on active tab`
+  // Function to render content based on active tab
   const renderTabContent = () => {
     // Filter products based on active tab
     const filteredProducts = activeTab === 'home' 
       ? products.filter(product => product.featured) 
       : products.filter(product => product.category === activeTab);
+
+    if (loading) {
+      return <div className="py-8 text-center">Loading products...</div>;
+    }
 
     if (activeTab === 'home') {
       return (
@@ -50,20 +61,40 @@ const HomePage = () => {
           <div className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Featured Categories</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filteredProducts.slice(0, 3).map((product) => (
-                <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="h-48 bg-gray-200">
-                    <img src={product.image || '/api/placeholder/300/200'} alt={product.name} className="w-full h-full object-cover" />
+              {filteredProducts.length > 0 ? (
+                filteredProducts.slice(0, 3).map((product) => (
+                  <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="h-48 bg-gray-200">
+                      {product.images && product.images.length > 0 ? (
+                        <img 
+                          src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:4000${product.images[0]}`} 
+                          alt={product.name} 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            console.error("Image failed to load:", product.images[0]);
+                            e.target.src = '/api/placeholder/300/200';
+                          }}
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-gray-400">
+                          No Image
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-medium text-lg text-gray-800">{product.name}</h3>
+                      <p className="text-gray-600 mt-1">{product.description.substring(0, 100)}...</p>
+                      <button className="mt-3 text-pink-500 font-medium hover:text-pink-600 transition-colors">
+                        Explore →
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-lg text-gray-800">{product.name}</h3>
-                    <p className="text-gray-600 mt-1">{product.description}</p>
-                    <button className="mt-3 text-pink-500 font-medium hover:text-pink-600 transition-colors">
-                      Explore →
-                    </button>
-                  </div>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-8 text-gray-500">
+                  No featured products found
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -102,23 +133,52 @@ const HomePage = () => {
 
         {/* Product grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gray-200">
-                <img src={product.image || '/api/placeholder/300/200'} alt={product.name} className="w-full h-full object-cover" />
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium text-lg text-gray-800">{product.name}</h3>
-                <p className="text-gray-600 mt-1">{product.description}</p>
-                <div className="mt-3 flex justify-between items-center">
-                  <span className="font-semibold text-gray-800">{product.price}</span>
-                  <button className="bg-pink-500 text-white px-3 py-1 rounded text-sm hover:bg-pink-600 transition-colors">
-                    Add to Cart
-                  </button>
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="h-48 bg-gray-200">
+                  {product.images && product.images.length > 0 ? (
+                    <img 
+                      src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:4000${product.images[0]}`} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error("Image failed to load:", product.images[0]);
+                        e.target.src = '/api/placeholder/300/200';
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-gray-400">
+                      No Image
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-medium text-lg text-gray-800">{product.name}</h3>
+                  <p className="text-gray-600 mt-1">{product.description.substring(0, 100)}...</p>
+                  <div className="mt-3 flex justify-between items-center">
+                    <span className="font-semibold text-gray-800">
+                      {product.discountPrice ? (
+                        <>
+                          <span className="line-through text-gray-400 mr-2">${product.price.toFixed(2)}</span>
+                          ${product.discountPrice.toFixed(2)}
+                        </>
+                      ) : (
+                        `$${product.price.toFixed(2)}`
+                      )}
+                    </span>
+                    <button className="bg-pink-500 text-white px-3 py-1 rounded text-sm hover:bg-pink-600 transition-colors">
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              No products found in this category
             </div>
-          ))}
+          )}
         </div>
       </div>
     );
