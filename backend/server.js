@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const connectDB = require('./config/db')
 const productRoutes = require('./routes/productRoutes');
+const adminRoutes = require('./routes/adminRoutes')
 
 const dotenv = require('dotenv');
 
@@ -16,7 +17,11 @@ const path = require('path');
 
 
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Your frontend URL
+  credentials: true
+}));
+
 app.use(express.json());
 
 
@@ -45,6 +50,8 @@ app.use((err, req, res, next) => {
       error: process.env.NODE_ENV === 'development' ? err.message : 'Server error'
     });
   });
+
+  app.use('/api/admin', require('./routes/adminRoutes'));
   
   // Start the server
   const PORT = process.env.PORT || 4000;

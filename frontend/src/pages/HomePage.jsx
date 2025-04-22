@@ -34,6 +34,15 @@ const HomePage = () => {
       });
   }, []);
 
+  //function to add to cart 
+  const [cartItems, setCartItems] = useState([]);
+
+const addToCart = (product) => {
+  setCartItems((prevItems) => [...prevItems, product]);
+  console.log("Added to cart:", product);
+};
+
+
   // Function to render content based on active tab
   const renderTabContent = () => {
     // Filter products based on active tab
@@ -167,7 +176,7 @@ const HomePage = () => {
                         `$${product.price.toFixed(2)}`
                       )}
                     </span>
-                    <button className="bg-pink-500 text-white px-3 py-1 rounded text-sm hover:bg-pink-600 transition-colors">
+                    <button   onClick={() => addToCart(product)} className="bg-pink-500 text-white px-3 py-1 rounded text-sm hover:bg-pink-600 transition-colors">
                       Add to Cart
                     </button>
                   </div>
