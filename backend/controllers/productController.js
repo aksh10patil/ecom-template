@@ -132,9 +132,14 @@ exports.updateProduct = async (req, res) => {
   // Get products by category
   exports.getProductsByCategory = async (req, res) => {
     try {
+      console.log("Category param:", req.params.category);
       const products = await Product.find({ category: req.params.category });
+      console.log("Products found:", products);
+      console.log("Is array:", Array.isArray(products));
+      console.log("Length:", products.length);
       res.json(products);
     } catch (error) {
+      console.error("Error in getProductsByCategory:", error);
       res.status(500).json({ message: 'Server Error', error: error.message });
     }
   };

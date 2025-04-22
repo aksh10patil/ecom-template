@@ -2,19 +2,10 @@ import { useState } from 'react';
 import { Search, ShoppingCart, Heart, User, Menu, X } from 'lucide-react';
 
 export default function VastuRemediesHeader() {
-  const [activeTab, setActiveTab] = useState('home');
+  
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = [
-    { id: 'home', label: 'Home' },
-    { id: 'crystals', label: 'Crystals' },
-    { id: 'jewellery', label: 'Jewellery' },
-    { id: 'chakra', label: '7 Chakra Products' },
-    { id: 'decor', label: 'Decor & Stands' },
-    { id: 'selfcare', label: 'Self Care' },
-    { id: 'offers', label: 'Offers' },
-  ];
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -85,60 +76,7 @@ export default function VastuRemediesHeader() {
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="bg-white border-t border-b border-gray-200">
-        <div className="container mx-auto px-4">
-          <div className="hidden md:flex justify-between">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                className={`py-3 px-4 font-medium transition-colors ${
-                  activeTab === category.id
-                    ? 'text-pink-500 border-b-2 border-pink-500'
-                    : 'text-gray-700 hover:text-pink-500'
-                }`}
-                onClick={() => setActiveTab(category.id)}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <button 
-              className="w-full py-3 flex justify-between items-center"
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-            >
-              <span className="font-medium">
-                {categories.find(cat => cat.id === activeTab)?.label || 'Menu'}
-              </span>
-              {showMobileMenu ? <X size={20} /> : <Menu size={20} />}
-            </button>
-            
-            {showMobileMenu && (
-              <div className="py-2 border-t border-gray-200">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    className={`w-full text-left py-2 px-4 ${
-                      activeTab === category.id
-                        ? 'text-pink-500 bg-pink-50'
-                        : 'text-gray-700'
-                    }`}
-                    onClick={() => {
-                      setActiveTab(category.id);
-                      setShowMobileMenu(false);
-                    }}
-                  >
-                    {category.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
+     
     </header>
   );
 }
