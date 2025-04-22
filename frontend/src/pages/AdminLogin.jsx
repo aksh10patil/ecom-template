@@ -1,15 +1,21 @@
 // frontend/src/pages/AdminLogin.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, User } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../contexts/Context';
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+
+  // Get the return path from location state, or default to admin dashboard
+  const from = location.state?.from?.pathname || '/admin';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,26 +28,14 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:4000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-        credentials: 'include', // Important for cookies
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      // Store token in localStorage (alternatively you could use context)
-      localStorage.setItem('adminToken', data.token);
+      const result = await login(credentials.username, credentials.password);
       
-      // Redirect to admin panel
-      navigate('/admin');
+      if (result.success) {
+        // Redirect to the intended page or admin panel
+        navigate(from, { replace: true });
+      } else {
+        setError(result.message || 'Login failed');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
